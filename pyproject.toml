@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "neo4jam"
+version = "0.1.0"
+description = "Neo4j self-service with LLM"
+authors = ["Farhan Ahmad <farhan@knowchow.com>, Safwan Ahmad <safwan@knowchow.com>"]
+license = "GNU LGPL"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+neo4j = "^5.27.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

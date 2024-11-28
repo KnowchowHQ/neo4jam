@@ -1,0 +1,58 @@
+The following JSON corresponds to a neo4j schema. 
+[
+  {
+    "SourceNodeLabels": [
+      "Person"
+    ],
+    "RelationshipType": "ACTED_IN",
+    "TargetNodeLabels": [
+      "Movie"
+    ]
+  },
+  {
+    "SourceNodeLabels": [
+      "Person"
+    ],
+    "RelationshipType": "DIRECTED",
+    "TargetNodeLabels": [
+      "Movie"
+    ]
+  },
+  {
+    "SourceNodeLabels": [
+      "Person"
+    ],
+    "RelationshipType": "FOLLOWS",
+    "TargetNodeLabels": [
+      "Person"
+    ]
+  },
+  {
+    "SourceNodeLabels": [
+      "Person"
+    ],
+    "RelationshipType": "PRODUCED",
+    "TargetNodeLabels": [
+      "Movie"
+    ]
+  },
+  {
+    "SourceNodeLabels": [
+      "Person"
+    ],
+    "RelationshipType": "REVIEWED",
+    "TargetNodeLabels": [
+      "Movie"
+    ]
+  },
+  {
+    "SourceNodeLabels": [
+      "Person"
+    ],
+    "RelationshipType": "WROTE",
+    "TargetNodeLabels": [
+      "Movie"
+    ]
+  }
+]
+Generate a cypher query to find the list of movies in which Tom Cruise and Meg Ryan both acted in.
