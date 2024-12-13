@@ -20,24 +20,3 @@ def get_neo4j_metadata(uri: str, username: str, password: str) -> dict:
 
     driver.close()
     return metadata
-
-def generate_prompt(instruction=None, context=None, input_data=None, output_indicator=None):
-    """
-    Generates a structured prompt with components: instruction, context, input data, and output indicator.
-    
-    Args:
-        instruction (str): The main task or goal for the system/user.
-        context (str): Background information or additional details to aid in the task.
-        input_data (str): The specific input data for the task.
-        output_indicator (str): A description or example of the expected output format.
-
-    Returns:
-        dict: A dictionary containing the structured prompt components.
-    """
-    prompt = {
-        "instruction": instruction if instruction else "Provide a clear instruction for the task.",
-        "context": context if context else "Provide relevant background or context to help understand the task.",
-        "input_data": input_data if input_data else "Specify the input data required to complete the task.",
-        "output_indicator": output_indicator if output_indicator else "Describe the expected output or result."
-    }
-    return prompt
