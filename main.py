@@ -3,6 +3,8 @@ from generate_prompt import SystemPrompt, UserPrompt
 from ollama import chat
 from ollama import ChatResponse
 
+import google.generativeai as genai
+
 
 uri = "bolt://localhost:7687"  # Update this to your database URI
 username = "neo4j"
@@ -44,6 +46,48 @@ ollama_message_user = {
     'content': user_prompt['context'] + "\n" + str(user_prompt['input_data'])
     }
 
-response = chat(model="qwen2.5-coder:14b", messages=[ollama_message_system, ollama_message_user])
-print(response['message']['content'])
+# response = chat(model="qwen2.5-coder:14b", messages=[ollama_message_system])
 
+# Configure Gemini API
+genai.configure(api_key="AIzaSyD4MfUK8o7LKvI6PqOqu8XLrtkp4PDtrXs")
+model = genai.GenerativeModel("gemini-1.5-flash")
+response = model.generate_content(str(ollama_message_user))
+print(response.text)
+
+
+
+user_prompt = prompt.create_prompt_builder().build_prompt(
+    
+    role="user",
+    context="Generate a cypher query to find the list of movies in which Tom Cruise and Meg Ryan both acted in. The following JSON corresponds to a neo4j schema.",
+    input_data=get_neo4j_metadata(uri=uri, username=username, password=password)   
+)
+
+print("Generated User Prompt: {}".format(user_prompt))
+
+ollama_message_user = { 
+    "role": user_prompt['role'], 
+    'content': user_prompt['context'] + "\n" + str(user_prompt['input_data'])
+    }
+
+response = model.generate_content(str(ollama_message_user))
+print(response.text)
+
+
+
+user_prompt = prompt.create_prompt_builder().build_prompt(
+    
+    role="user",
+    context="Generate a cypher query to find all Persons born between 1980 and 1990. Return the name and date of birth in descending order. The following JSON corresponds to a neo4j schema.",
+    input_data=get_neo4j_metadata(uri=uri, username=username, password=password)   
+)
+
+print("Generated User Prompt: {}".format(user_prompt))
+
+ollama_message_user = { 
+    "role": user_prompt['role'], 
+    'content': user_prompt['context'] + "\n" + str(user_prompt['input_data'])
+    }
+
+response = model.generate_content(str(ollama_message_user))
+print(response.text)
