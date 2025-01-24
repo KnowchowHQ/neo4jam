@@ -1,3 +1,4 @@
+import os
 from introspection import get_neo4j_metadata
 from generate_prompt import SystemPrompt, UserPrompt
 from ollama import chat
@@ -7,15 +8,7 @@ import google.generativeai as genai
 from pandas import DataFrame
 from typing import Union
 from time import sleep
-
-
-uri = "bolt://localhost:7687"  # Update this to your database URI
-username = "neo4j"
-password = "Oakridge+100"
-
-# Configure Gemini API
-genai.configure(api_key="AIzaSyD4MfUK8o7LKvI6PqOqu8XLrtkp4PDtrXs")
-model = genai.GenerativeModel("gemini-1.5-flash")
+from drivers.loadenv import load_env
 
 
 def generate_cypher_queries(prompt: Union[UserPrompt, SystemPrompt]) -> dict:
@@ -41,14 +34,22 @@ def generate_cypher_queries(prompt: Union[UserPrompt, SystemPrompt]) -> dict:
 
         message_user = {
             "role": user_prompt['role'], 
-            'content': user_prompt['context'] + "\n" + str(user_prompt['input_data'])
+            'content': {
+                "Task": user_prompt['context'],
+                "Instructions": "Use only the provided relationship types and properties. \
+                    Do not use any other relationship types or properties that are not provided. \
+                    Return just the cypher query inside three quotes and nothing else. \
+                    If you cannot generate a Cypher statement based on the provided schema, explain the reason to the user.",
+                "Schema": str(user_prompt['input_data'])
             }
+        }
 
         response = model.generate_content(str(message_user))
         cypher_query_pairs.update(
             {
-            "real": ground_truth,
-            "generated": response.text
+                "nlp_query": user_prompt["context"],
+                "real": ground_truth,
+                "generated": str(response.text).replace("\n", " ").replace("```cypher", " ")
             }
         )
 
@@ -56,4 +57,11 @@ def generate_cypher_queries(prompt: Union[UserPrompt, SystemPrompt]) -> dict:
 
         print(cypher_query_pairs)
 
-generate_cypher_queries(UserPrompt())
+
+
+if __name__ == "__main__":
+    load_env()
+    # Configure Gemini API
+    genai.configure(api_key=os.getenv("GEMINI"))
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    generate_cypher_queries(UserPrompt())
