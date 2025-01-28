@@ -5,18 +5,17 @@ from ollama import chat
 from ollama import ChatResponse
 from drivers.dataloader import download_neo4j_text2cypher
 import google.generativeai as genai
+from google.generativeai import GenerativeModel
 from pandas import DataFrame
 from typing import Union
 from time import sleep
 from drivers.loadenv import load_env
+from loguru import logger
 
 
-def generate_cypher_queries(prompt: Union[UserPrompt, SystemPrompt]) -> dict:
+def generate_cypher_queries(data: DataFrame, prompt: Union[UserPrompt, SystemPrompt]) -> dict:
 
     cypher_query_pairs = {}
-
-    data = download_neo4j_text2cypher()
-    print(data.head)
     
     # Build prompts to generate required Cypher queries
     for index, row in data.iterrows():
@@ -55,13 +54,29 @@ def generate_cypher_queries(prompt: Union[UserPrompt, SystemPrompt]) -> dict:
 
         sleep(5)
 
-        print(cypher_query_pairs)
+        logger.info(cypher_query_pairs)
 
-
-
-if __name__ == "__main__":
-    load_env()
+def configure_llm() -> GenerativeModel:
     # Configure Gemini API
     genai.configure(api_key=os.getenv("GEMINI"))
     model = genai.GenerativeModel("gemini-1.5-flash")
-    generate_cypher_queries(UserPrompt())
+    return model
+
+
+def execution_loop():
+    # Load the environment
+    load_env()
+
+    # Configure LLM API
+    model = configure_llm()
+
+    # Download data
+    data = download_neo4j_text2cypher()
+    logger.info(data.head)
+
+    # Generate cypher queries
+    generate_cypher_queries(data, UserPrompt())
+
+
+if __name__ == "__main__":
+    execution_loop()
