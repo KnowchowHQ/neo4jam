@@ -2,12 +2,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 
+# Abstract Product (Prompt Builder)
 class PromptBuilder(ABC):
     @abstractmethod
     def build_prompt(self, **kargs) -> dict:
         pass
 
 
+# Concrete Products (Specific Builders)
 class SystemPromptBuilder(PromptBuilder) :
     def build_prompt(self, **kargs) -> dict:
         """
@@ -67,11 +69,14 @@ class UserPromptBuilder(PromptBuilder):
         return prompt 
 
 
+# Abstract Factory
 class PromptFactory(ABC):
     @abstractmethod
     def create_prompt_builder(self) -> PromptBuilder:
         pass
 
+
+# Concrete Factories
 class SystemPrompt(PromptFactory):
     def create_prompt_builder(self) -> PromptBuilder:
         return SystemPromptBuilder()
