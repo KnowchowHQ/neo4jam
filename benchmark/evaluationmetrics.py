@@ -1,9 +1,10 @@
 # TODO Use DeepEval library for evaluation metrics (https://www.confident-ai.com/blog/how-to-evaluate-llm-applications)
 
 # This module is responsible to run the following LLM evaluation metrics.
-import evaluate
 
+import evaluate
 from abc import ABC, abstractmethod
+
 
 # Abstract Product (Evaluation Metric)
 class EvaluationMetric(ABC):
