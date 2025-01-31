@@ -23,9 +23,6 @@ class SystemPromptBuilder(PromptBuilder) :
             Returns:
                 dict: A dictionary containing the structured prompt components.
             """
-        role=kargs.get('role', None)
-        context=kargs.get("context", None)
-        input_data=kargs.get("input_data", None)
 
         print("Running System Prompt builder.")
         
@@ -53,9 +50,6 @@ class UserPromptBuilder(PromptBuilder):
             Returns:
                 dict: A dictionary containing the structured prompt components.
             """
-        role=kargs.get('role', None)
-        context=kargs.get("context", None)
-        input_data=kargs.get("input_data", None)
 
         print("Running User Prompt builder.")
         
