@@ -1,5 +1,6 @@
 import functools
 import os
+from tqdm import tqdm
 from threading import Thread
 from evaluation import evaluation_execution_loop
 from introspection import get_neo4j_metadata
@@ -27,7 +28,7 @@ def validate_queue(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         channel = kwargs.get('channel')
-        channel.queue_declare(queue=MESSAGE_QUEUE_EVAL)
+        CONNECTION_INFO["result"] = channel.queue_declare(queue=MESSAGE_QUEUE_EVAL)
         return func(*args, **kwargs)
     return wrapper
 
@@ -41,12 +42,15 @@ def generate_cypher_queries(data: DataFrame,
     
     # Build prompts to generate required Cypher queries
     for index, row in data.iterrows():
+        logger.info("Processing row: {}", index)
+        logger.warning("Queue info: {}", CONNECTION_INFO["result"])
         try:
 
             nlp_query = row["question"]
             db_schema = row["schema"]
             ground_truth = row["cypher"]
             unique_id = row["instance_id"]
+            database_reference = row["database_reference_alias"]
 
             user_prompt = prompt.create_prompt_builder().build_prompt(
             role="user",
@@ -67,9 +71,10 @@ def generate_cypher_queries(data: DataFrame,
             }
             response = model.generate_content(str(message_user))
             CYPHER_QUERY_PAIRS.update({unique_id: {"unique_id": unique_id, 
+                                                   "database_reference": database_reference,
                                                 "nlp_query": user_prompt["context"],
                                                 "real": ground_truth,
-                                                "generated": str(response.text).replace("\n", " ").replace("```cypher", " ")
+                                                "generated": str(response.text).replace("\n", " ").replace("```cypher", " ").replace("```", " ")
                                                 }
                                     }
                                 )
@@ -86,6 +91,7 @@ def generate_cypher_queries(data: DataFrame,
                 sleep(60)
             
             if index == GOOGLE_REQUEST_QUOTA:
+                logger.warning("Google request quota reached. Exiting...")
                 channel.basic_publish(exchange='',
                                 routing_key=MESSAGE_QUEUE_EVAL,
                                 body=CLOSE_MESSAGING)
@@ -103,7 +109,13 @@ def configure_llm() -> GenerativeModel:
 
 
 def connect_rabbitmq_server() -> BlockingChannel:
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    parameters = pika.ConnectionParameters(
+    host='localhost',
+    port=5672,
+    heartbeat=600,  # Increase heartbeat
+    blocked_connection_timeout=300
+)
+    connection = pika.BlockingConnection(parameters=parameters)
     channel = connection.channel()
     return channel, connection
 
@@ -116,13 +128,24 @@ def save_results() -> None:
         # Save results
         with open("result.csv", 'w') as file:
             wr = csv.writer(file)
-            wr.writerow(["nlp_query", "real", "generated", "score"])
+            wr.writerow(["nlp_query", 
+                         "real", 
+                         "generated", 
+                         "database_reference", 
+                         "QueryRougeScore", 
+                         "QueryBLEUScore", 
+                         "ExecRougeScore", 
+                         "ExecBLEUScore"])
 
             for row in CYPHER_QUERY_PAIRS:
                 wr.writerow([CYPHER_QUERY_PAIRS[row]["nlp_query"], 
                             CYPHER_QUERY_PAIRS[row]["real"], 
-                            CYPHER_QUERY_PAIRS[row]["generated"], 
-                            CYPHER_QUERY_PAIRS[row]["score"]
+                            CYPHER_QUERY_PAIRS[row]["generated"],
+                            CYPHER_QUERY_PAIRS[row]["database_reference"] ,
+                            CYPHER_QUERY_PAIRS[row]["QueryRougeScore"],
+                            CYPHER_QUERY_PAIRS[row]["QueryBLEUScore"],
+                            CYPHER_QUERY_PAIRS[row]["ExecRougeScore"],
+                            CYPHER_QUERY_PAIRS[row]["ExecBLEUScore"]
                             ])  
     except KeyError:
         pass
@@ -155,8 +178,10 @@ def execution_loop():
     save_results()
 
     # Close the connection for the publisher
-    CONNECTION_INFO["publisher"]["connection"].close()   
+    CONNECTION_INFO["publisher"]["connection"].close()
+    # CONNECTION_INFO["publisher"]["channel"].queue_delete(queue=MESSAGE_QUEUE_EVAL)
 
 
 if __name__ == "__main__":
     execution_loop()
+  
