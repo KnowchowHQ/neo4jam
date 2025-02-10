@@ -7,6 +7,8 @@ import benchmark.evaluationmetrics as metrics
 from neo4j import GraphDatabase
 from neo4j.exceptions import CypherSyntaxError
 
+from drivers.csvhandler import CSVHandler
+
 
 def connect_rabbitmq_server() -> tuple[BlockingChannel, BlockingChannel]:
     connection = pika.BlockingConnection(pika.ConnectionParameters("localhost"))
@@ -146,25 +148,28 @@ def evaluate_generated_cyphers(ch, method, properties, body) -> None:
 
 
 def evaluation_execution_loop():
-    channel, connection = connect_rabbitmq_server()
-    CONNECTION_INFO["subscriber"] = {"channel": channel, "connection": connection}
+    # Open CSV file to read the generated cyphers
+    csv_handler = CSVHandler(RESULT_FILE_PATH, INPUT_COLUMNS) 
 
-    while True:
-        try:
-            channel.basic_consume(
-                queue=MESSAGE_QUEUE_EVAL,
-                auto_ack=True,
-                on_message_callback=evaluate_generated_cyphers,
-            )
+    # channel, connection = connect_rabbitmq_server()
+    # CONNECTION_INFO["subscriber"] = {"channel": channel, "connection": connection}
 
-            channel.start_consuming()
+    # while True:
+    #     try:
+    #         channel.basic_consume(
+    #             queue=MESSAGE_QUEUE_EVAL,
+    #             auto_ack=True,
+    #             on_message_callback=evaluate_generated_cyphers,
+    #         )
 
-        except pika.exceptions.StreamLostError:
-            print("Connection lost. Reconnecting...")
-            time.sleep(5)  # Wait before retrying
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-            break
+    #         channel.start_consuming()
+
+    #     except pika.exceptions.StreamLostError:
+    #         print("Connection lost. Reconnecting...")
+    #         time.sleep(5)  # Wait before retrying
+    #     except Exception as e:
+    #         print(f"Unexpected error: {e}")
+    #         break
 
 
 if __name__ == "__main__":
