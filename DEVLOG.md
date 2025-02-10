@@ -6,3 +6,6 @@ Feb 3, 2025
 - [Optional] Parse and validate the JSON with Pydantic
 - Download module / or script to get HF Neo4J datasets
 - Preprocess module / or script to split the dataset
+
+Feb 10, 2025
+- Break up code into DVC compatible "stages"
