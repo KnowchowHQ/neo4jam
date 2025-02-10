@@ -8,7 +8,7 @@ def login_huggingface_hub():
     login(token=os.getenv("HUGGING_FACE"))
 
 
-def download_neo4j_text2cypher(to: str) -> DataFrame:
+def download_neo4j_text2cypher(to: str) -> None:
     """
     The Neo4j-Text2Cypher (2024) Dataset brings together instances from publicly available datasets, 
     cleaning and organizing them for smoother use. 
