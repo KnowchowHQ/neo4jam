@@ -2,6 +2,7 @@ import functools
 import os
 from tqdm import tqdm
 from threading import Thread
+from drivers.csvhandler import CSVHandler
 from evaluation import evaluation_execution_loop
 from introspection import get_neo4j_metadata
 from generate_prompt import SystemPrompt, UserPrompt
@@ -23,29 +24,23 @@ from pika.adapters.blocking_connection import BlockingChannel
 from constants.globalconstant import *
 from pathlib import Path
 
-
-def validate_queue(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        channel = kwargs.get('channel')
-        CONNECTION_INFO["result"] = channel.queue_declare(queue=MESSAGE_QUEUE_EVAL)
-        return func(*args, **kwargs)
-    return wrapper
+CYPHER_QUERY_PAIRS = []
+GOOGLE_REQUEST_QUOTA = 15
+GOOGLE_PER_MIN_QUOTA = 15
+MESSAGE_QUEUE_EVAL = "evaluate"
+CLOSE_MESSAGING = "close"
+CONNECTION_INFO = {}
 
 
-@validate_queue
-def generate_cypher_queries(data: DataFrame, 
-                            prompt: Union[UserPrompt, SystemPrompt], 
-                            model: GenerativeModel,
-                            channel: BlockingChannel) -> dict:
-    
-    
+def generate_cypher_queries(
+    data: DataFrame, prompt: Union[UserPrompt, SystemPrompt], model: GenerativeModel
+) -> dict:
+
     # Build prompts to generate required Cypher queries
     for index, row in data.iterrows():
         logger.info("Processing row: {}", index)
-        logger.warning("Queue info: {}", CONNECTION_INFO["result"])
-        try:
 
+        try:
             nlp_query = row["question"]
             db_schema = row["schema"]
             ground_truth = row["cypher"]
@@ -53,49 +48,51 @@ def generate_cypher_queries(data: DataFrame,
             database_reference = row["database_reference_alias"]
 
             user_prompt = prompt.create_prompt_builder().build_prompt(
-            role="user",
-            context=str(nlp_query),
-            input_data=str(db_schema)
+                role="user", context=str(nlp_query), input_data=str(db_schema)
             )
 
             message_user = {
-                "role": user_prompt['role'], 
-                'content': {
-                    "Task": user_prompt['context'],
+                "role": user_prompt["role"],
+                "content": {
+                    "Task": user_prompt["context"],
                     "Instructions": "Use only the provided relationship types and properties. \
                         Do not use any other relationship types or properties that are not provided. \
                         Return just the cypher query inside three quotes and nothing else. \
                         If you cannot generate a Cypher statement based on the provided schema, explain the reason to the user.",
-                    "Schema": str(user_prompt['input_data'])
-                }
+                    "Schema": str(user_prompt["input_data"]),
+                },
             }
             response = model.generate_content(str(message_user))
-            CYPHER_QUERY_PAIRS.update({unique_id: {"unique_id": unique_id, 
-                                                   "database_reference": database_reference,
-                                                "nlp_query": user_prompt["context"],
-                                                "real": ground_truth,
-                                                "generated": str(response.text).replace("\n", " ").replace("```cypher", " ").replace("```", " ")
-                                                }
-                                    }
-                                )
+            CYPHER_QUERY_PAIRS.append(
+                {                    
+                    "unique_id": unique_id,
+                    "nlp_query": user_prompt["context"],
+                    "database_reference": database_reference,
+                    "real": ground_truth,
+                    "generated": str(response.text)
+                    .replace("\n", " ")
+                    .replace("```cypher", " ")
+                    .replace("```", " "),                    
+                }
+            )
             # logger.info(CYPHER_QUERY_PAIRS)
 
-            # Add the new query to the queue for the evaluation process
-            channel.basic_publish(exchange='',
-                                routing_key=MESSAGE_QUEUE_EVAL,
-                                body=unique_id)
-            
-            if (index+1) % GOOGLE_PER_MIN_QUOTA == 0:
+            # # Add the new query to the queue for the evaluation process
+            # channel.basic_publish(
+            #     exchange="", routing_key=MESSAGE_QUEUE_EVAL, body=unique_id
+            # )
+
+            if (index + 1) % GOOGLE_PER_MIN_QUOTA == 0:
                 # Evaluate generated cyphers
                 # evaluate_generated_cyphers(index)
                 sleep(60)
-            
+
             if index == GOOGLE_REQUEST_QUOTA:
                 logger.warning("Google request quota reached. Exiting...")
-                channel.basic_publish(exchange='',
-                                routing_key=MESSAGE_QUEUE_EVAL,
-                                body=CLOSE_MESSAGING)
-                return    
+                # channel.basic_publish(
+                #     exchange="", routing_key=MESSAGE_QUEUE_EVAL, body=CLOSE_MESSAGING
+                # )
+                return
         except ResourceExhausted:
             sleep(60)
             continue
@@ -110,78 +107,49 @@ def configure_llm() -> GenerativeModel:
 
 def connect_rabbitmq_server() -> BlockingChannel:
     parameters = pika.ConnectionParameters(
-    host='localhost',
-    port=5672,
-    heartbeat=600,  # Increase heartbeat
-    blocked_connection_timeout=300
-)
+        host="localhost",
+        port=5672,
+        heartbeat=600,  # Increase heartbeat
+        blocked_connection_timeout=300,
+    )
     connection = pika.BlockingConnection(parameters=parameters)
     channel = connection.channel()
     return channel, connection
 
-def save_results() -> None:
-    file_path = Path(os.getcwd(),"result.csv")
-    if file_path.exists():
-       file_path.unlink()
-    
-    try:
-        # Save results
-        with open("result.csv", 'w') as file:
-            wr = csv.writer(file)
-            wr.writerow(["nlp_query", 
-                         "real", 
-                         "generated", 
-                         "database_reference", 
-                         "QueryRougeScore", 
-                         "QueryBLEUScore", 
-                         "ExecRougeScore", 
-                         "ExecBLEUScore"])
+def save_results_to_csv():
+    csv_handler = CSVHandler(RESULT_FILE_PATH, INPUT_COLUMNS)
+    csv_handler.save_list_to_csv(CYPHER_QUERY_PAIRS)
 
-            for row in CYPHER_QUERY_PAIRS:
-                wr.writerow([CYPHER_QUERY_PAIRS[row]["nlp_query"], 
-                            CYPHER_QUERY_PAIRS[row]["real"], 
-                            CYPHER_QUERY_PAIRS[row]["generated"],
-                            CYPHER_QUERY_PAIRS[row]["database_reference"] ,
-                            CYPHER_QUERY_PAIRS[row]["QueryRougeScore"],
-                            CYPHER_QUERY_PAIRS[row]["QueryBLEUScore"],
-                            CYPHER_QUERY_PAIRS[row]["ExecRougeScore"],
-                            CYPHER_QUERY_PAIRS[row]["ExecBLEUScore"]
-                            ])  
-    except KeyError:
-        pass
-    
 
 def execution_loop():
     # Load the environment
     load_env()
 
-    # Establish a connection RabbitMQ server
-    channel, connection = connect_rabbitmq_server()
-    CONNECTION_INFO["publisher"] = {"channel": channel, "connection": connection}
+    # # Establish a connection RabbitMQ server
+    # channel, connection = connect_rabbitmq_server()
+    # CONNECTION_INFO["publisher"] = {"channel": channel, "connection": connection}
 
     # Configure LLM API
     model = configure_llm()
 
     # Download data
     data = download_neo4j_text2cypher()
-    logger.info(data.head)
+    logger.info(data.head(5))
 
-    # Run evaluation loop
-    thread = Thread(target=evaluation_execution_loop)
-    thread.start()
+    # # Run evaluation loop
+    # thread = Thread(target=evaluation_execution_loop)
+    # thread.start()
 
     # Generate cypher queries
-    generate_cypher_queries(data=data, prompt=UserPrompt(), model=model, channel=channel)
+    generate_cypher_queries(data=data, prompt=UserPrompt(), model=model)
+    save_results_to_csv()
 
-    thread.join()
-
-    save_results()
+    # thread.join()
 
     # Close the connection for the publisher
-    CONNECTION_INFO["publisher"]["connection"].close()
+    # CONNECTION_INFO["publisher"]["connection"].close()
     # CONNECTION_INFO["publisher"]["channel"].queue_delete(queue=MESSAGE_QUEUE_EVAL)
 
 
 if __name__ == "__main__":
     execution_loop()
-  
