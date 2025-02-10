@@ -50,5 +50,5 @@ def download_neo4j_text2cypher(to: str) -> DataFrame:
     logger.info("DF summary: {}", df.info())
 
     # Save the data to the specified location
-    df.to_parquet(to)
+    df.to_csv(to, index=False)
     logger.info("Saved data to {}", to)
