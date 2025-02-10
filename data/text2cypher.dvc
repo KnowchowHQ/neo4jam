@@ -1,0 +1,6 @@
+outs:
+- md5: a8efcf498d43a71201c5cb777dbe9994.dir
+  size: 161689451
+  nfiles: 18
+  hash: md5
+  path: text2cypher
