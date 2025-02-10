@@ -1,4 +1,5 @@
 from loguru import logger
+import os
 import pandas as pd
 
 
@@ -12,6 +13,8 @@ def preprocess_text2cypher(file: str, dest: str) -> None:
     logger.info("Dropped rows with missing DB name")
 
     # Save the data, one CSV per DB
+    if not os.path.exists(dest):
+        os.makedirs(dest)
     for db in df["database_reference_alias"].unique():
         db_df = df[df["database_reference_alias"] == db]
         db_df.to_csv(f"{dest}/{db}.csv", index=False)
