@@ -1,9 +1,10 @@
-CYPHER_QUERY_PAIRS = {}
-GOOGLE_REQUEST_QUOTA = 1000
-GOOGLE_PER_MIN_QUOTA = 15
-MESSAGE_QUEUE_EVAL = "evaluate"
-CLOSE_MESSAGING = "close"
-CONNECTION_INFO = {}
+# Description: This file contains the global constants used in the application.
+
+# Input dataframe columns
+INPUT_COLUMNS = ["unique_id", "nlp_query", "database_reference", "real", "generated"]
+
+# Output result file path
+RESULT_FILE_PATH = "result.csv"
 
 # Local Neo4j credentials
 NEO4J_URI = "bolt://localhost:7687"
