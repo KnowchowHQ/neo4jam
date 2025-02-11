@@ -3,7 +3,7 @@ import time
 from loguru import logger
 import pika
 from pika.adapters.blocking_connection import BlockingChannel
-import benchmark.evaluationmetrics as metrics
+import benchmark.metrics as metrics
 from neo4j import GraphDatabase
 from neo4j.exceptions import CypherSyntaxError
 
