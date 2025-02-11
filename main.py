@@ -4,7 +4,7 @@ from tqdm import tqdm
 from threading import Thread
 from drivers.csvhandler import CSVHandler
 from evaluation import evaluation_execution_loop
-from introspection import get_neo4j_metadata
+from neo4jam.introspection import get_neo4j_metadata
 from generate_prompt import SystemPrompt, UserPrompt
 from ollama import chat
 from ollama import ChatResponse
