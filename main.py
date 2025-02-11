@@ -15,7 +15,7 @@ from google.generativeai import GenerativeModel
 from pandas import DataFrame
 from typing import Union
 from time import sleep
-from drivers.loadenv import load_env
+from neo4jam.loadenv import load_env
 from loguru import logger
 
 import csv
