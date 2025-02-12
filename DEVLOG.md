@@ -13,3 +13,7 @@ Feb 10, 2025
 Feb 11, 2025
 - Continue DVC migration
 - Migrate to new google-genai package
+
+Feb 12, 2025
+- Migrate Cypher generation to DVC compatible stage (data/dencyphers.py)
+- Add stage information (cli.py)
