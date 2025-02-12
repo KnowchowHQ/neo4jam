@@ -9,3 +9,7 @@ Feb 3, 2025
 
 Feb 10, 2025
 - Break up code into DVC compatible "stages"
+
+Feb 11, 2025
+- Continue DVC migration
+- Migrate to new google-genai package
