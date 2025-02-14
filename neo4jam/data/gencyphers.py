@@ -1,12 +1,16 @@
 # This module is responsible for generating Cypher queries for Neo4j database with the help of a LLM.
 
 import os
+import sys
 from time import sleep
 from typing import Generator, Union
 from loguru import logger
 from pandas import DataFrame
 from pathlib import Path
 import pandas as pd
+
+# Add the directory containing generate_prompt.py to the Python path
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 from generate_prompt import SystemPrompt, UserPrompt
 from google.generativeai import GenerativeModel
