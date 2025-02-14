@@ -3,7 +3,7 @@ from typer import Typer
 from data.download import download_neo4j_text2cypher
 from dotenv import load_dotenv
 from data.preprocess import preprocess_text2cypher
-from data.gencyphers import gen_cypher
+from data.gencyphers import gen_cyphers
 
 
 def download(to: str) -> None:
@@ -13,8 +13,9 @@ def download(to: str) -> None:
 def preprocess(file: str, dest: str) -> None:
     preprocess_text2cypher(file, dest)
 
-def generate_cypher(source:str, dest:str) -> None:
-    gen_cypher(source, dest)
+
+def generate_cypher(source: str, dest: str) -> None:
+    gen_cyphers(source, dest)
 
 
 def run():
