@@ -20,7 +20,7 @@ def generate_cypher(source: str, dest: str) -> None:
 
 def run():
     app = Typer()
-    load_dotenv(Path("/home/devel/neo4jam/confidential/.env"))
+    load_dotenv(Path("/home/devel/neo4jam/.secrets/.env"))
     app.command(help="Download text2cypher data from HuggingFace")(download)
     app.command(help="Preprocess text2cypher data")(preprocess)
     app.command(help="Generate Cypher queries for preprocessed data")(generate_cypher)

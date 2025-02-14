@@ -24,7 +24,10 @@ GOOGLE_PER_MIN_QUOTA = 15
 # TODO: Configure the LLM model passed in the function
 def configure_llm() -> GenerativeModel:
     # Configure Gemini API
-    genai.configure(api_key=os.getenv("GEMINI"))
+    logger.debug("Configuring Gemini API...")
+    api_key = os.getenv("GEMINI")
+    logger.debug("API key: {}", api_key)
+    genai.configure(api_key=api_key)
     model = genai.GenerativeModel("gemini-1.5-flash")
     return model
 
