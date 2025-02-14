@@ -5,7 +5,7 @@ from threading import Thread
 from drivers.csvhandler import CSVHandler
 from evaluation import evaluation_execution_loop
 from neo4jam.introspection import get_neo4j_metadata
-from generate_prompt import SystemPrompt, UserPrompt
+from neo4jam.data.generate_prompt import SystemPrompt, UserPrompt
 from ollama import chat
 from ollama import ChatResponse
 from drivers.dataloader import download_neo4j_text2cypher

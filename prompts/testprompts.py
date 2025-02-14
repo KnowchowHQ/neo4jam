@@ -1,4 +1,4 @@
-from generate_prompt import SystemPrompt, UserPrompt
+from neo4jam.data.generate_prompt import SystemPrompt, UserPrompt
 
 
 # Generate the system prompt
