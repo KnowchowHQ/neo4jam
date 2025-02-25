@@ -4,6 +4,9 @@ from data.download import download_neo4j_text2cypher
 from dotenv import load_dotenv
 from data.preprocess import preprocess_text2cypher
 from ai.generator import process_file
+from models import AVAILABLE_PROVIDERS
+from pydantic import FilePath
+from pathlib import Path
 
 def download(to: str) -> None:
     download_neo4j_text2cypher(to)
@@ -13,8 +16,8 @@ def preprocess(file: str, dest: str) -> None:
     preprocess_text2cypher(file, dest)
 
 
-def generate(source: str, dest: str) -> None:
-    process_file(source, dest)
+def generate(source: FilePath, dest: Path, llm_api:AVAILABLE_PROVIDERS, model_name:str) -> None:
+    process_file(source, dest, llm_api, model_name)
 
 
 def run():

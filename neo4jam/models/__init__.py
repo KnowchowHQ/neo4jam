@@ -1,4 +1,7 @@
+from enum import Enum
 from .google import GeminiAPI
-AVAILABLE_PROVIDERS = { 
-    "Google": GeminiAPI
-}
+
+
+class AVAILABLE_PROVIDERS(Enum):
+    Google = "GeminiAPI"
+    OpenAI = "OpenAI"
