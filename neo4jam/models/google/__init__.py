@@ -1,10 +1,18 @@
+from enum import Enum
 from google import genai
 from google.genai import types
 import os
 
 
+class GEMINI_AVAILABLE_MODELS(Enum):
+    GEMINI_1_5_FLASH = "gemini-1.5-flash"
+    GEMINI_2_0_FLASH = "gemini-2.0-flash"
+
+
 class GeminiAPI:
-    def __init__(self, model: str, system_prompt: str | None = None):
+    def __init__(self, model: GEMINI_AVAILABLE_MODELS, system_prompt: str | None = None):
+        if model not in GEMINI_AVAILABLE_MODELS:
+            raise ValueError(f"Model {model} is not available. Choose from {[e.value for e in GEMINI_AVAILABLE_MODELS]}")
         self._client = genai.Client(api_key=os.environ.get("GEMINI"))
         self._model = model
         self._system_prompt = system_prompt
