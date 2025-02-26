@@ -1,4 +1,5 @@
 import importlib
+from loguru import logger
 import pandas as pd
 import models
 from models import AVAILABLE_PROVIDERS
@@ -18,6 +19,15 @@ def process_file(
         with a natural language query. You need to generate a Cypher query that
         retrieves the data the user is asking for.""",
     )
-
-    df["cypher"] = df["text"].apply(lambda x: llm_api.generate(x))
-    df.to_csv(dest, index=False)
+    # Fetch DB schema
+    special_token = "Following is the Neo4j database schema for the given question."
+    df["cypher"] = df.apply(lambda x: llm_api.generate("\n".join(
+     [special_token, x["schema"], x["question"]]
+     )), axis=1)  
+    
+    # Save the updated dataframe to a new CSV file
+    filename = source.name
+    df.to_csv(f"{dest.parent}/{filename}", index=False)
+    
+    logger.info("Appended genearated queries to {}", filename)
+    logger.info("Cypher generation complete.")

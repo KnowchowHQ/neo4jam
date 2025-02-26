@@ -1,8 +1,12 @@
 from enum import Enum
+from time import sleep
 from google import genai
 from google.genai import types
+from google.genai.errors import ClientError
 import os
+from typing import Union
 
+from loguru import logger
 
 class GEMINI_AVAILABLE_MODELS(Enum):
     GEMINI_1_5_FLASH = "gemini-1.5-flash"
@@ -17,12 +21,29 @@ class GeminiAPI:
         self._model = model_name
         self._system_prompt = system_prompt
 
-    def generate(self, query: str) -> str:
-        response = self._client.models.generate_content(
-            model=self._model,
-            contents=[query],
-            config=types.GenerateContentConfig(
-                system_instruction=self._system_prompt or None
-            ),
-        )
-        return response.text
+    def generate(self, query: Union[str, list]) -> str:
+        if isinstance(query, str):
+            query = [query]
+
+        try:
+            response = self._client.models.generate_content(
+                model=self._model,
+                contents=query,
+                config=types.GenerateContentConfig(
+                    system_instruction=self._system_prompt or None
+                ),
+            )
+            return response.text
+        except ClientError as e:
+            logger.warning("Google request quota reached. Waiting...")
+            sleep(60)
+        finally:
+            response = self._client.models.generate_content(
+                model=self._model,
+                contents=query,
+                config=types.GenerateContentConfig(
+                    system_instruction=self._system_prompt or None
+                ),
+            )
+            return response.text
+
