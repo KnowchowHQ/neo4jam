@@ -26,8 +26,10 @@ def process_file(
      )), axis=1)  
     
     # Save the updated dataframe to a new CSV file
+    if not dest.exists():
+        dest.mkdir(parents=True)
     filename = source.name
-    df.to_csv(f"{dest.parent}/{filename}", index=False)
+    df.to_csv(f"{dest}/{filename}", index=False)
     
     logger.info("Appended genearated queries to {}", filename)
     logger.info("Cypher generation complete.")
