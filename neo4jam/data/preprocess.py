@@ -1,7 +1,9 @@
+from typing import Union
 from config import config
 from loguru import logger
 import os
 import pandas as pd
+from pydantic import FilePath, DirectoryPath
 
 
 def preprocess_text2cypher(file: str, dest: str) -> None:
@@ -24,8 +26,8 @@ def preprocess_text2cypher(file: str, dest: str) -> None:
 
 
 def sample_text2cypher(
-    file: str,
-    dest: str,
+    path: Union[FilePath, DirectoryPath],
+    dest: Union[FilePath, DirectoryPath],
 ) -> None:
     size = config.preprocessing.sample_sz
     if isinstance(size, int):
@@ -35,12 +37,26 @@ def sample_text2cypher(
     else:
         raise ValueError("Sample size must be an integer or a float")
 
-    df = pd.read_csv(file)
-    logger.info("Read data from {}", file)
+    if path.is_dir():
+        paths = path.glob("*.csv")
+    
+    else:
+        paths = [path]
 
-    sampled_df = df.sample(**sampling_params, random_state=config.experiments.seed)
+    for path in paths:
+        df = pd.read_csv(path)
+        logger.info("Read data from {}", path)
 
-    # Save the data
-    sampled_df.to_csv(dest / os.path.basename(file), index=False)
-    logger.info("Saved sampled data to {}", dest)
+        nrows= df.shape[0]
+
+        if isinstance(size, int) and nrows < size:
+            logger.warning("Data size is smaller than the sample size. Skipping sampling")
+            sampled_df = df
+        
+        else:
+            sampled_df = df.sample(**sampling_params, random_state=config.experiments.seed)
+
+        # Save the data
+        sampled_df.to_csv(dest / os.path.basename(path), index=False)
+        logger.info("Saved sampled data to {}", dest)
     logger.info("Sampling complete")
