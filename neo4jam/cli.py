@@ -14,8 +14,10 @@ from evaluation.evaluate import evaluate as evaluate_metrics
 def download(to: str) -> None:
     download_neo4j_text2cypher(to)
 
-def generate(source: Union[FilePath, DirectoryPath], dest: Path, llm_api:AVAILABLE_PROVIDERS, model_name:str) -> None:
-    process_file(source, dest, llm_api, model_name)
+
+def generate(source: Union[FilePath, DirectoryPath], dest: Path) -> None:
+    process_file(source, dest)
+
 
 def preprocess(file: str, dest: str) -> None:
     preprocess_text2cypher(file, dest)

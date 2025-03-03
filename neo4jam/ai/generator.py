@@ -7,17 +7,18 @@ from pydantic import DirectoryPath, FilePath
 from pathlib import Path
 from prompt import system_prompt, user_prompt
 from tqdm import tqdm
+from config import config
 
 
 def process_file(
     source: Union[FilePath, DirectoryPath],
     dest: Path,
-    llm_name: AVAILABLE_PROVIDERS,
-    model_name: str,
 ) -> None:
     tqdm.pandas(    
         desc="process file"
     )
+    llm_name = config.generation.provider
+    model_name = config.generation.model
     llm_api_class = getattr(models, llm_name.value)
     llm_api = llm_api_class(
         model_name=model_name,
