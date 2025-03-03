@@ -12,7 +12,7 @@ class Config(BaseModel):
 
 
 
-with open("config.json", "r") as f:
+with open("./.config/config.json", "r") as f:
     config = Config(**json.load(f))
 
 
