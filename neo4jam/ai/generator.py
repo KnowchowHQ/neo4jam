@@ -1,35 +1,47 @@
+from typing import Union
 from loguru import logger
 import pandas as pd
 import models
 from models import AVAILABLE_PROVIDERS
-from pydantic import FilePath
+from pydantic import DirectoryPath, FilePath
 from pathlib import Path
 from prompt import system_prompt, user_prompt
 from tqdm import tqdm
 
 
 def process_file(
-    source: FilePath, dest: Path, llm_name: AVAILABLE_PROVIDERS, model_name: str
+    source: Union[FilePath, DirectoryPath],
+    dest: Path,
+    llm_name: AVAILABLE_PROVIDERS,
+    model_name: str,
 ) -> None:
-    tqdm.pandas(desc="process file") # https://github.com/tqdm/tqdm?tab=readme-ov-file#pandas-integration
-
-    df = pd.read_csv(source)
+    tqdm.pandas(    
+        desc="process file"
+    )
     llm_api_class = getattr(models, llm_name.value)
-
     llm_api = llm_api_class(
         model_name=model_name,
         system_prompt=system_prompt(),
     )
-    # Fetch DB schema
-    df["generated"] = df.progress_apply(
-        lambda x: llm_api.generate(user_prompt(x["schema"], x["question"])), axis=1
-    )
 
-    # Save the updated dataframe to a new CSV file
-    if not dest.exists():
-        dest.mkdir(parents=True)
-    filename = source.name
-    df.to_csv(f"{dest}/{filename}", index=False)
+    if source.is_dir():
+        paths = source.glob("*.csv")
+    else:
+        paths = [source]
+    
+    for path in paths:
+      # https://github.com/tqdm/tqdm?tab=readme-ov-file#pandas-integration
 
-    logger.info("Appended genearated queries to {}", filename)
+        df = pd.read_csv(path)
+            
+        # Fetch DB schema
+        df["generated"] = df.progress_apply(
+            lambda x: llm_api.generate(user_prompt(x["schema"], x["question"])), axis=1
+        )
+
+        # Save the updated dataframe to a new CSV file
+        filename = path.name
+        df.to_csv(Path(dest, filename), index=False)
+
+        logger.info("Appended genearated queries to {}", filename)
     logger.info("Cypher generation complete.")
