@@ -17,13 +17,8 @@ def generate(source: FilePath, dest: Path, llm_api:AVAILABLE_PROVIDERS, model_na
 def preprocess(file: str, dest: str) -> None:
     preprocess_text2cypher(file, dest)
 
-def sample(file: FilePath, dest: Path, size: str) -> None:
-    try:
-        n = int(size)
-        sample_text2cypher(file, dest, n=n)
-    except ValueError:
-        f = float(size)
-        sample_text2cypher(file, dest, frac=f)
+def sample(file: FilePath, dest: Path) -> None:
+    sample_text2cypher(file, dest)
 
 
 def run():

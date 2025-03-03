@@ -24,21 +24,21 @@ def preprocess_text2cypher(file: str, dest: str) -> None:
 
 
 def sample_text2cypher(
-    file: str, dest: str, frac: float | None = None, n: int | None = None
+    file: str,
+    dest: str,
 ) -> None:
-    if frac is None and n is None:
-        raise ValueError("Either frac or n must be provided")
-    if frac is not None and n is not None:
-        raise ValueError("Only one of frac or n must be provided")
+    size = config.preprocessing.sample_sz
+    if isinstance(size, int):
+        sampling_params = {"n": size}
+    elif isinstance(size, float):
+        sampling_params = {"frac": size}
+    else:
+        raise ValueError("Sample size must be an integer or a float")
 
     df = pd.read_csv(file)
     logger.info("Read data from {}", file)
 
-    # Sample data
-    if n is not None:
-        sampled_df = df.sample(n=n, random_state=config.experiments.seed)
-    else:
-        sampled_df = df.sample(frac=frac, random_state=config.experiments.seed)
+    sampled_df = df.sample(**sampling_params, random_state=config.experiments.seed)
 
     # Save the data
     sampled_df.to_csv(dest / os.path.basename(file), index=False)
