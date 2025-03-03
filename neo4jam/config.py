@@ -1,6 +1,7 @@
 import json
 from pydantic import BaseModel, RootModel, Field
 from pydantic.types import Annotated
+from models import AVAILABLE_PROVIDERS
 from typing import Union
 
 
@@ -19,10 +20,19 @@ class Preprocessing(BaseModel):
         ),
     ]
 
+class Generation(BaseModel):
+    provider: AVAILABLE_PROVIDERS = Annotated[
+        AVAILABLE_PROVIDERS, Field(..., description="LLM API provider")
+    ]
+    model: str = Annotated[
+        str, Field(..., description="LLM model name")
+    ]
+
 
 class Config(BaseModel):
     experiments: Experiments
     preprocessing: Preprocessing
+    generation: Generation
 
 
 with open("./.config/config.json", "r") as f:

@@ -4,5 +4,9 @@
     },
     "preprocessing": {
         "sample_sz": 100
+    },
+    "generation":{
+        "provider": "GeminiAPI",
+        "model": "gemini-2.0-flash"
     }
 }
