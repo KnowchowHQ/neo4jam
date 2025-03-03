@@ -23,7 +23,9 @@ def preprocess_text2cypher(file: str, dest: str) -> None:
     logger.info("Preprocessing complete")
 
 
-def sample_text2cypher(file: str, dest: str, frac: float | None, n: int | None) -> None:
+def sample_text2cypher(
+    file: str, dest: str, frac: float | None = None, n: int | None = None
+) -> None:
     if frac is None and n is None:
         raise ValueError("Either frac or n must be provided")
     if frac is not None and n is not None:
@@ -39,6 +41,6 @@ def sample_text2cypher(file: str, dest: str, frac: float | None, n: int | None) 
         sampled_df = df.sample(frac=frac, random_state=config.experiments.seed)
 
     # Save the data
-    sampled_df.to_csv(dest, index=False)
+    sampled_df.to_csv(dest / os.path.basename(file), index=False)
     logger.info("Saved sampled data to {}", dest)
     logger.info("Sampling complete")
