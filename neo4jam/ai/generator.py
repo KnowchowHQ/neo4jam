@@ -21,7 +21,7 @@ def process_file(
         system_prompt=system_prompt(),
     )
     # Fetch DB schema
-    df["cypher"] = df.progress_apply(
+    df["generated"] = df.progress_apply(
         lambda x: llm_api.generate(user_prompt(x["schema"], x["question"])), axis=1
     )
 
