@@ -21,7 +21,6 @@ def process_file(
         system_prompt=system_prompt(),
     )
     # Fetch DB schema
-    special_token = "Following is the Neo4j database schema for the given question."
     df["cypher"] = df.progress_apply(
         lambda x: llm_api.generate(user_prompt(x["schema"], x["question"])), axis=1
     )
