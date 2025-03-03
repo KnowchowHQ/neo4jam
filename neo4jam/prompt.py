@@ -3,7 +3,7 @@ def system_prompt():
         query to retrieve data from a Neo4j database. The user has provided you
         with a natural language query. You need to generate a Cypher query that
         retrieves the data the user is asking for. Do not output anything other
-        than the Cypher query."""
+        than the Cypher query, including any markdown or other formatting."""
 
 
 def user_prompt(schema: str, question: str):
