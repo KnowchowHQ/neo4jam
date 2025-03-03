@@ -61,7 +61,7 @@ class GeminiAPI:
         self._model = model_name
         self._system_prompt = system_prompt
 
-    @RateLimit(max_per_min=10, cool_off_period=60)
+    @RateLimit(max_per_min=100, cool_off_period=60)
     def generate(self, query: Union[str, list]) -> str:
         if isinstance(query, str):
             query = [query]
