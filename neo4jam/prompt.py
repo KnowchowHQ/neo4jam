@@ -7,6 +7,10 @@ def system_prompt():
 
 
 def user_prompt(schema: str, question: str):
+    if not schema:
+        raise ValueError("Schema cannot be empty.")
+    if not question:
+        raise ValueError("Question cannot be empty.")
     return f"""Following is the Neo4j database schema for the following schema and user query.
             Schema: {schema}
             User query: {question}"""
