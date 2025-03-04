@@ -9,4 +9,4 @@ We investigate the effectiveness of using large language models to generate accu
 
 
 
-[1]: hf://datasets/neo4j/text2cypher-2024v1
+[1]: https://huggingface.co/datasets/neo4j/text2cypher-2024v1
