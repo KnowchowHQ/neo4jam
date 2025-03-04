@@ -10,11 +10,9 @@ from pydantic import DirectoryPath
 from tqdm import tqdm
 
 
-def evaluate_generated_cyphers(df: DataFrame) -> dict:
+def evaluate_generated_cyphers(df: DataFrame, rouge_metric, bleu_metric) -> dict:
     try:
-        tqdm.pandas(desc="Generate Cyphers")
-        # Find the rouge scores
-        rouge_metric = metrics.ROUGEMetric()
+        tqdm.pandas(desc="Evaluate Generated Cyphers")
         try:
             df["QueryRougeScore"] = df.progress_apply(lambda x: rouge_metric.calculate(
                 predictions=[x["generated"]  if pd.notnull(x["generated"]) else " "], 
@@ -25,8 +23,6 @@ def evaluate_generated_cyphers(df: DataFrame) -> dict:
             logger.info(ie)
 
         # Find the BLEU scores
-        bleu_metric = metrics.BLEUMetric()
-        # metric = metrics.create_metric(bleu_metric_factory)
         try:
             df["QueryBLEUScore"] = df.progress_apply(lambda x: bleu_metric.calculate(
                 predictions=[x["generated"]  if pd.notnull(x["generated"]) else " "], 
@@ -60,10 +56,13 @@ def fetch_data_from_dir(directory: DirectoryPath) -> Generator[tuple[str, DataFr
 def evaluate(input_dir: DirectoryPath, output_dir: DirectoryPath) -> None:
     # Load data from a directory
     data = fetch_data_from_dir(input_dir)
+    rouge_metric = metrics.ROUGEMetric()
+    bleu_metric = metrics.BLEUMetric()
+
     for filename, df in data:
-        result = evaluate_generated_cyphers(df)
+        result = evaluate_generated_cyphers(df, rouge_metric, bleu_metric)
         # Save the updated dataframe to a new CSV file
         result.to_csv(f"{output_dir}/{filename}", index=False)
-        logger.info("Appended genearated queries to {}", filename)
+        logger.info("Appended genearated scores to {}", filename)
 
-    logger.info("Cypher generation complete.")
+    logger.info("Evaluation complete.")

@@ -129,8 +129,8 @@ stages:
       isexec: true
     - path: neo4jam/evaluation/evaluate.py
       hash: md5
-      md5: 6a549de87a61192bbe8bb7074283135e
-      size: 2733
+      md5: fdf8f9956edf4dcdc38e07c8e0753822
+      size: 2688
       isexec: true
     - path: neo4jam/evaluation/metrics.py
       hash: md5
