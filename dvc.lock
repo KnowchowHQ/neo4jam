@@ -105,13 +105,13 @@ stages:
       nfiles: 6
     - path: neo4jam/prompt.py
       hash: md5
-      md5: 14455e4e954d5630ed751a03082cf235
-      size: 721
+      md5: 9708755bac5ba1773707547fb1aa634f
+      size: 2373
     outs:
     - path: data/text2cypher/generated
       hash: md5
-      md5: 0312dc083ec560d11d32697e54680ac5.dir
-      size: 4771992
+      md5: ef880b9a0ddc39b0d562991b4be1a977.dir
+      size: 4776558
       nfiles: 17
   evaluate:
     cmd: mkdir /home/devel/neo4jam/data/text2cypher/evaluation && python neo4jam/cli.py
@@ -119,8 +119,8 @@ stages:
     deps:
     - path: data/text2cypher/generated
       hash: md5
-      md5: 0312dc083ec560d11d32697e54680ac5.dir
-      size: 4771992
+      md5: ef880b9a0ddc39b0d562991b4be1a977.dir
+      size: 4776558
       nfiles: 17
     - path: neo4jam/cli.py
       hash: md5
@@ -140,6 +140,6 @@ stages:
     outs:
     - path: data/text2cypher/evaluation
       hash: md5
-      md5: a22d9f3b8cb6738c131754f2d4ff3383.dir
-      size: 5374549
+      md5: fb85307e11b5d6d51104fe8234d0ce40.dir
+      size: 5376477
       nfiles: 17
