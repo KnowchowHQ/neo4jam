@@ -5,7 +5,7 @@ vars:
   - sampled_data: /home/devel/neo4jam/data/text2cypher/sampled
   - generated_data: /home/devel/neo4jam/data/text2cypher/generated
   - evaluation_data: /home/devel/neo4jam/data/text2cypher/evaluation
-  - config_file: ./.config/config.json
+  - config_file: .config/config.json
   - metrics_file: ./report.json
 
 stages:
