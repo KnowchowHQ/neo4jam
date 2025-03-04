@@ -42,6 +42,7 @@ stages:
       - neo4jam/cli.py
       - neo4jam/ai/generator.py
       - neo4jam/models
+      - neo4jam/prompt.py
       - ${sampled_data}
       - ${config_file}
     outs:
