@@ -44,6 +44,7 @@ def run():
         generate
     )
     app.command(help="Evaluate generated Cypher queries")(evaluate)
+    app.command(help="Aggregate evaluation metrics")(aggregate)
     app()
 
 

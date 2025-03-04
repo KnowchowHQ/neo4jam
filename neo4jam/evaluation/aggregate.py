@@ -3,6 +3,18 @@ import pandas as pd
 from typing import Generator
 from pandas import DataFrame
 from pydantic import DirectoryPath
+from evaluation import metrics
+
+
+def _aggregate_metrics(df: DataFrame, rouge_metric, bleu_metric) -> tuple:
+
+    rouge_agg_score = rouge_metric.calculate(
+        predictions=df["generated"].tolist(), references=df["cypher"].tolist()
+    )
+    bleu_agg_score = bleu_metric.calculate(
+        predictions=df["generated"].tolist(), references=df["cypher"].tolist()
+    )
+    return (rouge_agg_score, bleu_agg_score)
 
 
 # Method to load CSV files from a directory
@@ -27,9 +39,11 @@ def fetch_data_from_dir(
 def aggregate_metrics(input_dir: DirectoryPath) -> None:
     data = fetch_data_from_dir(input_dir)
     scores = []
+    rouge_metric = metrics.ROUGEMetric()
+    bleu_metric = metrics.BLEUMetric()
+
     for filename, df in data:
-        rouge_score = df["QueryRougeScore"].mean()
-        bleu_score = df["QueryBLEUScore"].mean()
+        rouge_score, bleu_score = _aggregate_metrics(df, rouge_metric, bleu_metric)
         scores.append(
             {
                 "filename": filename,
