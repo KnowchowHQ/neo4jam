@@ -6,7 +6,7 @@
         "report": "./report.json"
     },
     "preprocessing": {
-        "sample_sz": 100
+        "sample_sz": 50
     },
     "generation":{
         "provider": "GeminiAPI",
