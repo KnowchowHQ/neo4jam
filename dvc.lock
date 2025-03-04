@@ -1,0 +1,106 @@
+schema: '2.0'
+stages:
+  download:
+    cmd: python neo4jam/cli.py download /home/devel/neo4jam/data/text2cypher/raw/downloaded.csv
+    deps:
+    - path: neo4jam/cli.py
+      hash: md5
+      md5: d20fb12d6b9e3f1cf0e7bd0f298841f8
+      size: 1495
+      isexec: true
+    outs:
+    - path: data/text2cypher/raw/downloaded.csv
+      hash: md5
+      md5: 801c9081d72a7a5834bc887fe7a80167
+      size: 90326367
+  preprocess:
+    cmd: python neo4jam/cli.py preprocess /home/devel/neo4jam/data/text2cypher/raw/downloaded.csv
+      /home/devel/neo4jam/data/text2cypher/processed
+    deps:
+    - path: ./.config/config.json
+      hash: md5
+      md5: e73776a72395f8d59d0bb9cd4e9d075e
+      size: 199
+    - path: data/text2cypher/raw/downloaded.csv
+      hash: md5
+      md5: 801c9081d72a7a5834bc887fe7a80167
+      size: 90326367
+    - path: neo4jam/cli.py
+      hash: md5
+      md5: d20fb12d6b9e3f1cf0e7bd0f298841f8
+      size: 1495
+      isexec: true
+    outs:
+    - path: data/text2cypher/processed
+      hash: md5
+      md5: 0bd5c85a80fe32f22a00419fbbed7a86.dir
+      size: 71363084
+      nfiles: 17
+  sample:
+    cmd: mkdir /home/devel/neo4jam/data/text2cypher/sampled && python neo4jam/cli.py
+      sample /home/devel/neo4jam/data/text2cypher/processed /home/devel/neo4jam/data/text2cypher/sampled
+    deps:
+    - path: ./.config/config.json
+      hash: md5
+      md5: e73776a72395f8d59d0bb9cd4e9d075e
+      size: 199
+    - path: data/text2cypher/processed
+      hash: md5
+      md5: 0bd5c85a80fe32f22a00419fbbed7a86.dir
+      size: 71363084
+      nfiles: 17
+    - path: neo4jam/cli.py
+      hash: md5
+      md5: d20fb12d6b9e3f1cf0e7bd0f298841f8
+      size: 1495
+      isexec: true
+    outs:
+    - path: data/text2cypher/sampled
+      hash: md5
+      md5: b71cbdbe4bdb12b47c9262e3a7957af5.dir
+      size: 4560394
+      nfiles: 17
+  generate:
+    cmd: mkdir /home/devel/neo4jam/data/text2cypher/generated && python neo4jam/cli.py
+      generate /home/devel/neo4jam/data/text2cypher/sampled /home/devel/neo4jam/data/text2cypher/generated
+    deps:
+    - path: ./.config/config.json
+      hash: md5
+      md5: e73776a72395f8d59d0bb9cd4e9d075e
+      size: 199
+    - path: data/text2cypher/sampled
+      hash: md5
+      md5: b71cbdbe4bdb12b47c9262e3a7957af5.dir
+      size: 4560394
+      nfiles: 17
+    - path: neo4jam/cli.py
+      hash: md5
+      md5: d20fb12d6b9e3f1cf0e7bd0f298841f8
+      size: 1495
+      isexec: true
+    outs:
+    - path: data/text2cypher/generated
+      hash: md5
+      md5: d995a668f2b4632561588d511f52a93d.dir
+      size: 4769195
+      nfiles: 17
+  evaluate:
+    cmd: mkdir /home/devel/neo4jam/data/text2cypher/evaluation && python neo4jam/cli.py
+      evaluate /home/devel/neo4jam/data/text2cypher/generated /home/devel/neo4jam/data/text2cypher/evaluation
+    deps:
+    - path: data/text2cypher/generated
+      hash: md5
+      md5: d995a668f2b4632561588d511f52a93d.dir
+      size: 4769195
+      nfiles: 17
+    - path: neo4jam/cli.py
+      hash: md5
+      md5: d20fb12d6b9e3f1cf0e7bd0f298841f8
+      size: 1495
+      isexec: true
+    outs:
+    - path: data/text2cypher/evaluation
+      hash: md5
+      md5: 420dceb4abea58ce304a76f84037b292.dir
+      size: 5370688
+      nfiles: 17

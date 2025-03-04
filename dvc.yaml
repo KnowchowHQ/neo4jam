@@ -1,0 +1,58 @@
+vars:
+  - data_dir: /home/devel/neo4jam/data/text2cypher
+  - raw_data: /home/devel/neo4jam/data/text2cypher/raw
+  - processed_data: /home/devel/neo4jam/data/text2cypher/processed
+  - sampled_data: /home/devel/neo4jam/data/text2cypher/sampled
+  - generated_data: /home/devel/neo4jam/data/text2cypher/generated
+  - evaluation_data: /home/devel/neo4jam/data/text2cypher/evaluation
+  - config_file: ./.config/config.json
+
+stages:
+  download:
+    cmd: python neo4jam/cli.py download ${raw_data}/downloaded.csv
+    deps:
+      - neo4jam/cli.py
+      - neo4jam/data/download.py
+    outs:
+      - ${raw_data}/downloaded.csv
+
+  preprocess:
+    cmd: python neo4jam/cli.py preprocess ${raw_data}/downloaded.csv ${processed_data}
+    deps:
+      - neo4jam/cli.py
+      - neo4jam/data/preprocess.py
+      - ${raw_data}/downloaded.csv
+      - ${config_file}
+    outs:
+      - ${processed_data}
+
+  sample:
+    cmd: mkdir ${sampled_data} && python neo4jam/cli.py sample ${processed_data} ${sampled_data}
+    deps:
+      - neo4jam/cli.py
+      - neo4jam/data/preprocess.py
+      - ${processed_data}
+      - ${config_file}
+    outs:
+      - ${sampled_data}
+
+  generate:
+    cmd: mkdir ${generated_data} && python neo4jam/cli.py generate ${sampled_data} ${generated_data}
+    deps:
+      - neo4jam/cli.py
+      - neo4jam/ai/generator.py
+      - neo4jam/models
+      - ${sampled_data}
+      - ${config_file}
+    outs:
+      - ${generated_data}
+
+  evaluate:
+    cmd: mkdir ${evaluation_data} && python neo4jam/cli.py evaluate ${generated_data} ${evaluation_data}
+    deps:
+      - neo4jam/cli.py
+      - neo4jam/evaluation/metrics.py
+      - neo4jam/evaluation/evaluate.py
+      - ${generated_data}
+    outs:
+      - ${evaluation_data}
