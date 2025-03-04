@@ -9,6 +9,7 @@ from models import AVAILABLE_PROVIDERS
 from pydantic import FilePath, DirectoryPath
 from pathlib import Path
 from evaluation.evaluate import evaluate as evaluate_metrics
+from evaluation.aggregate import aggregate_metrics
 
 
 def download(to: str) -> None:
@@ -30,6 +31,8 @@ def sample(file: Union[FilePath, DirectoryPath], dest: Path) -> None:
 def evaluate(input_dir: DirectoryPath, output_dir: DirectoryPath) -> None:
     evaluate_metrics(input_dir, output_dir)
 
+def aggregate(evals_dir: DirectoryPath) -> None:
+    aggregate_metrics(evals_dir)
 
 def run():
     app = Typer()

@@ -6,6 +6,7 @@ vars:
   - generated_data: /home/devel/neo4jam/data/text2cypher/generated
   - evaluation_data: /home/devel/neo4jam/data/text2cypher/evaluation
   - config_file: ./.config/config.json
+  - metrics_file: ./metrics.json
 
 stages:
   download:
@@ -57,3 +58,12 @@ stages:
       - ${generated_data}
     outs:
       - ${evaluation_data}
+
+  aggregate:
+    cmd: python neo4jam/cli.py aggregate ${evaluation_data}
+    deps:
+      - neo4jam/cli.py
+      - neo4jam/evaluation/aggregate.py
+      - ${evaluation_data}
+    metrics:
+      - ${metrics_file}

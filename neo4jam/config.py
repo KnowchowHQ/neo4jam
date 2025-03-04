@@ -10,6 +10,12 @@ class Experiments(BaseModel):
         int, Field(..., description="Seed for random number generation")
     ]
 
+class Evaluation(BaseModel):
+    report: str = Annotated[
+        str, Field(..., description="Report file name")
+    ]
+
+
 
 class Preprocessing(BaseModel):
     sample_sz: Union[int, float] = Annotated[
@@ -31,6 +37,7 @@ class Generation(BaseModel):
 
 class Config(BaseModel):
     experiments: Experiments
+    evaluation: Evaluation
     preprocessing: Preprocessing
     generation: Generation
 

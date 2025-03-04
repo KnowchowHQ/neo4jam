@@ -2,6 +2,9 @@
     "experiments": {
         "seed": 42
     },
+    "evaluation": {
+        "report": "./report.json"
+    },
     "preprocessing": {
         "sample_sz": 100
     },
