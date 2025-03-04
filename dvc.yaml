@@ -56,6 +56,7 @@ stages:
       - neo4jam/evaluation/metrics.py
       - neo4jam/evaluation/evaluate.py
       - ${generated_data}
+      - ${config_file}
     outs:
       - ${evaluation_data}
 
