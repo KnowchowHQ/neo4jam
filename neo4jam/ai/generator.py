@@ -11,18 +11,35 @@ from config import config
 from multiprocessing import Pool
 
 
+def _parse_response(resp: str) -> str:
+    try:
+        # Remove Markdown code block: ```cypher
+        resp = resp.replace("```cypher", "")
+        # Remove Markdown code block: ```
+        resp = resp.replace("```", "")
+        # Remove leading and trailing whitespaces
+        resp = resp.strip()
+        return resp
+    except Exception as e:
+        logger.error("Error parsing response: {}", e)
+        return resp
+
+
+def _generate_single(schema: str, question: str, llm_api) -> str:
+    resp = llm_api.generate(user_prompt(schema, question))
+    return _parse_response(resp)
+
+
 def _generate_for_dataset(
     datafile: FilePath,
     dest: Path,
     llm_api,
 ) -> None:
-    tqdm.pandas(    
-        desc="process file"
-    )
+    tqdm.pandas(desc="process file")
     df = pd.read_csv(datafile)
     df["generated"] = df.progress_apply(
-            lambda x: llm_api.generate(user_prompt(x["schema"], x["question"])), axis=1
-        )
+        lambda x: _generate_single(x["schema"], x["question"], llm_api), axis=1
+    )
 
     # Save the updated dataframe to a new CSV file
     filename = datafile.name
@@ -47,14 +64,10 @@ def generate_queries(
         paths = dataset.glob("*.csv")
     else:
         paths = [dataset]
-    
+
     with Pool(16) as p:
         p.starmap(
-            _generate_for_dataset,
-            [
-                (datafile, dest, llm_api)
-                for datafile in paths
-            ]
+            _generate_for_dataset, [(datafile, dest, llm_api) for datafile in paths]
         )
-        
+
     logger.info("Cypher generation complete.")

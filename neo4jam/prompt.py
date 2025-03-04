@@ -11,7 +11,9 @@ def user_prompt(schema: str, question: str):
     if not question:
         raise ValueError("Question cannot be empty.")
     return f"""Generate cypher query for the following schema and user query.
-    Only output the cypher query and DO NOT include Markdown or any other formatting.      
+    Enclose the query in a markdown code block:
+    ```cypher
+    ```      
     Schema: {schema}
     User Query: {question}
     Example: 
@@ -44,5 +46,7 @@ def user_prompt(schema: str, question: str):
         User Query:
             List the top 5 users who have interacted with 'louisgray.com'.
         Expected Output:
+            ```cypher
             MATCH (u:User)-[:ASKED]->(q:Question) WITH u, COUNT(q) AS question_count ORDER BY question_count DESC LIMIT 5 RETURN u.display_name AS user, question_count
+            ```
         """
