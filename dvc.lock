@@ -22,10 +22,6 @@ stages:
     cmd: python neo4jam/cli.py preprocess /home/devel/neo4jam/data/text2cypher/raw/downloaded.csv
       /home/devel/neo4jam/data/text2cypher/processed
     deps:
-    - path: ./.config/config.json
-      hash: md5
-      md5: 5d5292cd973cc87575ab167dae40724f
-      size: 260
     - path: data/text2cypher/raw/downloaded.csv
       hash: md5
       md5: 801c9081d72a7a5834bc887fe7a80167
