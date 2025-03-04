@@ -8,15 +8,33 @@ from pathlib import Path
 from prompt import system_prompt, user_prompt
 from tqdm import tqdm
 from config import config
+from multiprocessing import Pool
 
 
-def process_file(
-    source: Union[FilePath, DirectoryPath],
+def _generate_for_dataset(
+    datafile: FilePath,
     dest: Path,
+    llm_api,
 ) -> None:
     tqdm.pandas(    
         desc="process file"
     )
+    df = pd.read_csv(datafile)
+    df["generated"] = df.progress_apply(
+            lambda x: llm_api.generate(user_prompt(x["schema"], x["question"])), axis=1
+        )
+
+    # Save the updated dataframe to a new CSV file
+    filename = datafile.name
+    df.to_csv(Path(dest, filename), index=False)
+
+    logger.info("Writing genearated queries to {}", filename)
+
+
+def generate_queries(
+    dataset: Union[FilePath, DirectoryPath],
+    dest: Path,
+) -> None:
     llm_name = config.generation.provider
     model_name = config.generation.model
     llm_api_class = getattr(models, llm_name.value)
@@ -25,24 +43,18 @@ def process_file(
         system_prompt=system_prompt(),
     )
 
-    if source.is_dir():
-        paths = source.glob("*.csv")
+    if dataset.is_dir():
+        paths = dataset.glob("*.csv")
     else:
-        paths = [source]
+        paths = [dataset]
     
-    for path in paths:
-      # https://github.com/tqdm/tqdm?tab=readme-ov-file#pandas-integration
-
-        df = pd.read_csv(path)
-            
-        # Fetch DB schema
-        df["generated"] = df.progress_apply(
-            lambda x: llm_api.generate(user_prompt(x["schema"], x["question"])), axis=1
+    with Pool(16) as p:
+        p.starmap(
+            _generate_for_dataset,
+            [
+                (datafile, dest, llm_api)
+                for datafile in paths
+            ]
         )
-
-        # Save the updated dataframe to a new CSV file
-        filename = path.name
-        df.to_csv(Path(dest, filename), index=False)
-
-        logger.info("Appended genearated queries to {}", filename)
+        
     logger.info("Cypher generation complete.")

@@ -4,7 +4,7 @@ from typer import Typer
 from data.download import download_neo4j_text2cypher
 from dotenv import load_dotenv
 from data.preprocess import preprocess_text2cypher, sample_text2cypher
-from ai.generator import process_file
+from ai.generator import generate_queries
 from models import AVAILABLE_PROVIDERS
 from pydantic import FilePath, DirectoryPath
 from pathlib import Path
@@ -16,7 +16,7 @@ def download(to: str) -> None:
 
 
 def generate(source: Union[FilePath, DirectoryPath], dest: Path) -> None:
-    process_file(source, dest)
+    generate_queries(source, dest)
 
 
 def preprocess(file: str, dest: str) -> None:
