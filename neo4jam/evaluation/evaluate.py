@@ -1,5 +1,6 @@
 # Description: This file contains methods to evaluate the performance of the LLM.
 
+from multiprocessing import Pool
 from pathlib import Path
 import pandas as pd
 from typing import Generator, Union
@@ -28,7 +29,7 @@ def evaluate_generated_cyphers(df: DataFrame, rouge_metric, bleu_metric) -> dict
                 predictions=[x["generated"]  if pd.notnull(x["generated"]) else " "], 
                 references=[ x["cypher"]]), axis=1)
             
-            logger.info("Rouge Score generated for {}", df["database_reference_alias"].unique())
+            logger.info("Bleu Score generated for {}", df["database_reference_alias"].unique())
         except IndexError as ie:
             logger.info(ie)
         
@@ -59,10 +60,13 @@ def evaluate(input_dir: DirectoryPath, output_dir: DirectoryPath) -> None:
     rouge_metric = metrics.ROUGEMetric()
     bleu_metric = metrics.BLEUMetric()
 
-    for filename, df in data:
-        result = evaluate_generated_cyphers(df, rouge_metric, bleu_metric)
-        # Save the updated dataframe to a new CSV file
-        result.to_csv(f"{output_dir}/{filename}", index=False)
-        logger.info("Appended genearated scores to {}", filename)
-
+    with Pool(10) as pool:
+        pool.starmap(__evaluate__, [(df, output_dir, filename, rouge_metric, bleu_metric) for filename, df in data])
+       
     logger.info("Evaluation complete.")
+
+def __evaluate__(df: DataFrame, output_dir: DirectoryPath, filename: str, rouge_metric, bleu_metric) -> tuple:
+    result = evaluate_generated_cyphers(df, rouge_metric, bleu_metric)
+    # Save the updated dataframe to a new CSV file
+    result.to_csv(f"{output_dir}/{filename}", index=False)
+    logger.info("Appended genearated scores to {}", filename)
