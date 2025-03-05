@@ -5,8 +5,8 @@ stages:
     deps:
     - path: neo4jam/cli.py
       hash: md5
-      md5: 4b3ef033eb9388530a2b5b7d445072bf
-      size: 1684
+      md5: 8ae5d83ea08879dd2cb0f93a18fd6156
+      size: 1912
       isexec: true
     - path: neo4jam/data/download.py
       hash: md5
@@ -28,8 +28,8 @@ stages:
       size: 90326367
     - path: neo4jam/cli.py
       hash: md5
-      md5: 4b3ef033eb9388530a2b5b7d445072bf
-      size: 1684
+      md5: 8ae5d83ea08879dd2cb0f93a18fd6156
+      size: 1912
       isexec: true
     - path: neo4jam/data/preprocess.py
       hash: md5
@@ -53,8 +53,8 @@ stages:
       nfiles: 17
     - path: neo4jam/cli.py
       hash: md5
-      md5: 4b3ef033eb9388530a2b5b7d445072bf
-      size: 1684
+      md5: 8ae5d83ea08879dd2cb0f93a18fd6156
+      size: 1912
       isexec: true
     - path: neo4jam/data/preprocess.py
       hash: md5
@@ -87,8 +87,8 @@ stages:
       isexec: true
     - path: neo4jam/cli.py
       hash: md5
-      md5: 4b3ef033eb9388530a2b5b7d445072bf
-      size: 1684
+      md5: 8ae5d83ea08879dd2cb0f93a18fd6156
+      size: 1912
       isexec: true
     - path: neo4jam/models
       hash: md5
@@ -120,13 +120,13 @@ stages:
       nfiles: 17
     - path: neo4jam/cli.py
       hash: md5
-      md5: 4b3ef033eb9388530a2b5b7d445072bf
-      size: 1684
+      md5: 8ae5d83ea08879dd2cb0f93a18fd6156
+      size: 1912
       isexec: true
     - path: neo4jam/evaluation/evaluate.py
       hash: md5
-      md5: 2657982946d66503a72790765b3be2f9
-      size: 2937
+      md5: 84997c45384235523ee9c2eb128c5829
+      size: 2936
       isexec: true
     - path: neo4jam/evaluation/metrics.py
       hash: md5
@@ -152,21 +152,22 @@ stages:
       nfiles: 17
     - path: neo4jam/cli.py
       hash: md5
-      md5: 4b3ef033eb9388530a2b5b7d445072bf
-      size: 1684
+      md5: 8ae5d83ea08879dd2cb0f93a18fd6156
+      size: 1912
       isexec: true
     - path: neo4jam/evaluation/aggregate.py
       hash: md5
-      md5: 4f5eb889c916d82746690db0cc121250
-      size: 1983
+      md5: bcabb3c11d5b0765a830f43b7457ed7a
+      size: 1984
     outs:
     - path: ./report.json
       hash: md5
       md5: e37e66c9ca4974f2ca794dc2b56c01f9
       size: 6086
   deepgen:
-    cmd: mkdir /home/devel/neo4jam/data/text2cypher/deepgen && python neo4jam/cli.py
-      deepgenerate /home/devel/neo4jam/data/text2cypher/generated /home/devel/neo4jam/data/text2cypher/deepgen
+    cmd: mkdir -p /home/devel/neo4jam/data/text2cypher/deepgen/real && mkdir -p /home/devel/neo4jam/data/text2cypher/deepgen/generated
+      && python neo4jam/cli.py deepgenerate /home/devel/neo4jam/data/text2cypher/generated
+      /home/devel/neo4jam/data/text2cypher/deepgen
     deps:
     - path: data/text2cypher/generated
       hash: md5
@@ -180,11 +181,11 @@ stages:
       isexec: true
     - path: neo4jam/deepeval/deepgen.py
       hash: md5
-      md5: 9df039e0356133b59a04f19310341ce7
-      size: 3847
+      md5: 4f430d2d476d6927d6927067c7add019
+      size: 4314
     outs:
     - path: data/text2cypher/deepgen
       hash: md5
-      md5: d751713988987e9331980363e24189ce.dir
-      size: 0
-      nfiles: 0
+      md5: 263bbce6141c68468557c8fc33b45cd0.dir
+      size: 468583743
+      nfiles: 1173
