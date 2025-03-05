@@ -54,4 +54,4 @@ def aggregate_metrics(input_dir: DirectoryPath) -> None:
     scores_df = pd.DataFrame(
         data=scores, columns=["filename", "rouge_score", "bleu_score"]
     )
-    scores_df.to_json(config.evaluation.report, orient="records", lines=True)
+    scores_df.to_json(config.evaluation.report, orient="records", lines=False)

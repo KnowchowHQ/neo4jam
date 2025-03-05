@@ -65,7 +65,7 @@ def evaluate(input_dir: DirectoryPath, output_dir: DirectoryPath) -> None:
        
     logger.info("Evaluation complete.")
 
-def __evaluate__(df: DataFrame, output_dir: DirectoryPath, filename: str, rouge_metric, bleu_metric) -> tuple:
+def __evaluate__(df: DataFrame, output_dir: DirectoryPath, filename: str, rouge_metric, bleu_metric) -> None:
     result = evaluate_generated_cyphers(df, rouge_metric, bleu_metric)
     # Save the updated dataframe to a new CSV file
     result.to_csv(f"{output_dir}/{filename}", index=False)
