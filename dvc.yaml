@@ -5,6 +5,7 @@ vars:
   - sampled_data: /home/devel/neo4jam/data/text2cypher/sampled
   - generated_data: /home/devel/neo4jam/data/text2cypher/generated
   - evaluation_data: /home/devel/neo4jam/data/text2cypher/evaluation
+  - deep_gen_data: /home/devel/neo4jam/data/text2cypher/deepgen
   - config_file: .config/config.json
   - metrics_file: ./report.json
 
@@ -79,3 +80,13 @@ stages:
       - ${evaluation_data}
     metrics:
       - ${metrics_file}
+
+  deepgen:
+    cmd: mkdir -p ${deep_gen_data}/real && mkdir -p ${deep_gen_data}/generated && python neo4jam/cli.py deepgenerate ${generated_data} ${deep_gen_data}
+    deps:
+      - neo4jam/cli.py
+      - neo4jam/deepeval/deepgen.py
+      - ${generated_data}
+    
+    outs:
+      - ${deep_gen_data}

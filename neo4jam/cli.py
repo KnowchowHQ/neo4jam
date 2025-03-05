@@ -10,6 +10,7 @@ from pydantic import FilePath, DirectoryPath
 from pathlib import Path
 from evaluation.evaluate import evaluate as evaluate_metrics
 from evaluation.aggregate import aggregate_metrics
+from deepeval.deepgen import deepgen
 
 
 def download(to: str) -> None:
@@ -34,6 +35,9 @@ def evaluate(input_dir: DirectoryPath, output_dir: DirectoryPath) -> None:
 def aggregate(evals_dir: DirectoryPath) -> None:
     aggregate_metrics(evals_dir)
 
+def deepgenerate(input_dir: DirectoryPath, output_dir: DirectoryPath) -> None:
+    deepgen(input_dir, output_dir)
+
 def run():
     app = Typer()
     load_dotenv(Path("/home/devel/neo4jam/.secrets/.env"))
@@ -45,6 +49,7 @@ def run():
     )
     app.command(help="Evaluate generated Cypher queries")(evaluate)
     app.command(help="Aggregate evaluation metrics")(aggregate)
+    app.command(help="Generate Cypher queries using DeepGen")(deepgenerate)
     app()
 
 

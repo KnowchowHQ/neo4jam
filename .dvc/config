@@ -1,4 +1,4 @@
 [core]
     remote = remotestore
 ['remote "remotestore"']
-    url = /storage/devel/dvcstore/
+    url = /storage/devel/dvcstore/neo4jam

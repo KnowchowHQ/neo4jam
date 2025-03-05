@@ -164,3 +164,27 @@ stages:
       hash: md5
       md5: e37e66c9ca4974f2ca794dc2b56c01f9
       size: 6086
+  deepgen:
+    cmd: mkdir /home/devel/neo4jam/data/text2cypher/deepgen && python neo4jam/cli.py
+      deepgenerate /home/devel/neo4jam/data/text2cypher/generated /home/devel/neo4jam/data/text2cypher/deepgen
+    deps:
+    - path: data/text2cypher/generated
+      hash: md5
+      md5: f457b2171c69db4ed2e2ba2d53fb5c29.dir
+      size: 2432200
+      nfiles: 17
+    - path: neo4jam/cli.py
+      hash: md5
+      md5: 8ae5d83ea08879dd2cb0f93a18fd6156
+      size: 1912
+      isexec: true
+    - path: neo4jam/deepeval/deepgen.py
+      hash: md5
+      md5: 9df039e0356133b59a04f19310341ce7
+      size: 3847
+    outs:
+    - path: data/text2cypher/deepgen
+      hash: md5
+      md5: d751713988987e9331980363e24189ce.dir
+      size: 0
+      nfiles: 0
