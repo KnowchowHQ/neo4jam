@@ -26,6 +26,9 @@ dvc = {extras = ["ssh"], version = "^3.59.0"}
 google-genai = "^1.1.0"
 
 
+[tool.poetry.group.debug.dependencies]
+memray = "^1.16.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
